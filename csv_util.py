@@ -2,27 +2,36 @@ import inspect
 from operator import attrgetter
 
 class Csv_Column:
-    def __init__(self,priority,name=None,format=None):
+    def __init__(self,priority,name,format=None):
         self.name=name
         self.priority=priority
         self.format=format
-        self._value=''
+        self.value=''
         
         
         
-    @property
-    def value(self):
-        return self._value
-    
-    @value.setter
-    def value(self,new_value):
-        self._value=new_value 
+    def __get__(self,instance,owner):
+        return self.value    
+    def __set__(self,instance,value):
+        self.value=value
+        instance.__dict__[self.attr_name]=self
+    def __set_name__(self,owner,name):
+        self.attr_name=name
+      
+           
+
+ 
         
 class Csv_FA_Cusoty:
-    Fund1=Csv_Column(1)
-    Fund2=Csv_Column(1)
-    Fund3=Csv_Column(1)
-    Fund4=Csv_Column(1)
+    Fund1=Csv_Column(1,'Test1')
+    Fund2=Csv_Column(1,'Test2')
+    Fund3=Csv_Column(1,'Test3')
+    Fund4=Csv_Column(1,'Test4')
+    def __init__(self):
+        self.Fund1=''
+        self.Fund2=''
+        self.Fund3=''
+        self.Fund4=''
    
 def is_uniform_type(lst):
     if not lst:
@@ -73,10 +82,10 @@ def csv_dumps(csv_entities,seperator=','):
 
 
 
-def get_csv_columns(csv_entites):
+def get_csv_columns(csv_entity:Csv_Column):
     
 
-    atts=inspect.getmembers(csv_entites,lambda a:not(inspect.isroutine(a)))
+    csv_dict=csv_entity.__csv
     csv_atts_dict={key:value for key, value in atts if not key.startswith("__") and isinstance(value,Csv_Column)}
     if csv_atts_dict:
         #sort_value=attrgetter('priority')
@@ -88,10 +97,11 @@ def get_csv_columns(csv_entites):
     
     
 f1=Csv_FA_Cusoty()
-f1.Fund1.value='f1Fund1'
-f1.Fund2.value='f1Fund2'
-f1.Fund3.value='f1Fund3'
-f1.Fund4.value='f1Fund4'
+f1.Fund1='f1Fund1'
+print(f1.Fund1)
+# f1.Fund2='f1Fund2'
+# f1.Fund3='f1Fund3'
+# f1.Fund4='f1Fund4'
 f2=Csv_FA_Cusoty()
 f2.Fund1.value='f2Fund1'
 f2.Fund2.value='f2Fund2'
